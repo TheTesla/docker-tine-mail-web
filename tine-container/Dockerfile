@@ -32,3 +32,6 @@ COPY config.inc.php /etc/tine20/.
 #CMD service mysql start && /usr/sbin/apache2ctl -D FOREGROUND
 CMD /usr/sbin/apache2ctl -D FOREGROUND
 
+
+EXPOSE 80
+

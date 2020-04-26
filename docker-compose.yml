@@ -1,9 +1,33 @@
 version: "3.3"
 services:
+
+  reverse-proxy:
+    # The official v2 Traefik docker image
+    image: traefik:v2.2
+    # Enables the web UI and tells Traefik to listen to docker
+    command:
+      - --entrypoints.web.address=:80
+      - --api.insecure=true
+      - --providers.docker
+      - --providers.docker.exposedbydefault=false
+
+    networks:
+      - frontend
+    ports:
+      # The HTTP port
+      - "80:80"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+        #      - ./traefik:/etc/traefik
+
+
   db:
     image: mariadb
-    #    networks:
-    #      - backend
+    networks:
+      - backend
     volumes:
       - ./init.sql:/data/application/init.sql
 
@@ -12,22 +36,51 @@ services:
       MYSQL_DATABASE: tine20
       MYSQL_USER: tine20
       MYSQL_PASSWORD: dbpass
-    ports:
-      - "3306:3306"
+      #    ports:
+      #      - "3306:3306"
 
 
 
   crm:
     build: tine-container
-    ports:
-      - "80:80"
-        #    networks:
-        #      - backend
-    links:
-      - db
+    #ports:
+    #  - "80:80"
+    networks:
+      - backend
+      - frontend
+        #    links:
+        #      - db
+    labels:
+      - "traefik.enable=true"  
+        #- "traefik.port=80"
+        #- "traefik.docker.network=frontend"
+        #- "traefik.backend=crm"
+        #- "treafik.fronend.rule=PathPrefix:/crm"
+        #- "traefik.http.routers.crm.rule=PathPrefix(`/crm`)"
+        #- "traefik.http.routers.crm.entrypoints=web"
+        #- "traefik.frontend.rule=Host:localhost,PathPrefixStrip:/host"
+        #- "traefik.frontend.rule=PathPrefix:/tine20"
+      - "traefik.http.routers.crm.rule=PathPrefix(`/crm`)"
+      - "traefik.http.routers.crm.entrypoints=web"
+      - "traefik.http.routers.crm.middlewares=crm-stripprefix"
+      - "traefik.http.middlewares.crm-stripprefix.stripprefix.prefixes=/crm"
+
+
     depends_on:
       - db
 
-      #networks:
-      #  backend:
- #frontend:
+  whoami:
+    image: "containous/whoami"
+    container_name: "simple-service"
+    networks:
+      - frontend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=PathPrefix(`/whoami2`)"
+      - "traefik.http.routers.whoami.entrypoints=web"
+
+
+
+networks:
+  backend:
+  frontend:
