@@ -1,0 +1,33 @@
+version: "3.3"
+services:
+  db:
+    image: mariadb
+    #    networks:
+    #      - backend
+    volumes:
+      - ./init.sql:/data/application/init.sql
+
+    environment:
+      MYSQL_ROOT_PASSWORD: dbrootpass
+      MYSQL_DATABASE: tine20
+      MYSQL_USER: tine20
+      MYSQL_PASSWORD: dbpass
+    ports:
+      - "3306:3306"
+
+
+
+  crm:
+    build: tine-container
+    ports:
+      - "80:80"
+        #    networks:
+        #      - backend
+    links:
+      - db
+    depends_on:
+      - db
+
+      #networks:
+      #  backend:
+ #frontend:

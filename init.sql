@@ -1,0 +1,3 @@
+CREATE USER 'tine20'@'localhost';
+CREATE DATABASE tine20 DEFAULT CHARACTER SET 'UTF8';
+GRANT ALL PRIVILEGES ON tine20.* TO 'tine20'@'localhost' IDENTIFIED BY 'dbpass';
