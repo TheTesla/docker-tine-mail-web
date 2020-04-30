@@ -10,7 +10,7 @@ services:
       - --api.insecure=true
       - --providers.docker
       - --providers.docker.exposedbydefault=false
-      - --log.level=DEBUG
+        #      - --log.level=DEBUG
       - --accesslog=true
     networks:
       - frontend
@@ -60,6 +60,18 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.whoami.rule=PathPrefix(`/whoami`)"
       - "traefik.http.routers.whoami.entrypoints=web"
+
+  cms:
+    build: "grav-container"
+    networks:
+      - frontend
+    labels:
+      - "traefik.enable=true"  
+      - "traefik.docker.network=docker-tine_frontend"
+      - "traefik.http.routers.cms.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.cms.entrypoints=web"
+      - "traefik.http.routers.cms.middlewares=cms-stripprefix"
+      - "traefik.http.middlewares.cms-stripprefix.stripprefix.prefixes=/"
 
 
 

@@ -1,0 +1,3 @@
+[submodule "docker-grav"]
+	path = docker-grav
+	url = git@github.com:TheTesla/docker-grav.git
